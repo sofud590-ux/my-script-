@@ -106,7 +106,7 @@ local UIListLayout = Instance.new("UIListLayout", ContentFrame)
 UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 UIListLayout.Padding = UDim.new(0, 6)
 
--- 1. Speed (Tốc độ chạy)
+-- 1. Speed (Tốc độ chạy - Tự động giữ liên tục)
 local customSpeed = nil
 local SpeedBox = Instance.new("TextBox", ContentFrame)
 SpeedBox.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
@@ -130,7 +130,8 @@ task.spawn(function()
     end
 end)
 
--- 2. Jump (Lực nhảy)
+-- 2. Jump (Lực nhảy - Tự động giữ liên tục giống Speed)
+local customJump = nil
 local JumpBox = Instance.new("TextBox", ContentFrame)
 JumpBox.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 JumpBox.Size = UDim2.new(1, 0, 0, 26)
@@ -140,15 +141,24 @@ JumpBox.Text = ""
 JumpBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 JumpBox.TextSize = 11
 Instance.new("UICorner", JumpBox).CornerRadius = UDim.new(0, 4)
-JumpBox.FocusLost:Connect(function(e)
-    if e then 
-        local val = tonumber(JumpBox.Text)
-        if val and LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then 
-            local hm = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-            hm.UseJumpPower = true 
-            hm.JumpPower = val 
-        end 
+JumpBox.FocusLost:Connect(function(enter) 
+    if enter then 
+        customJump = tonumber(JumpBox.Text) 
     end 
+end)
+
+task.spawn(function()
+    while true do 
+        task.wait(1)
+        if customJump then 
+            local char = LocalPlayer.Character 
+            local hm = char and char:FindFirstChildOfClass("Humanoid")
+            if hm then 
+                hm.UseJumpPower = true 
+                hm.JumpPower = customJump 
+            end 
+        end 
+    end
 end)
 
 -- 3. InfJump (Nhảy trên không)
@@ -174,7 +184,7 @@ UserInputService.JumpRequest:Connect(function()
     end 
 end)
 
--- 4. Noclip (Đi xuyên tường - Đã fix lỗi tắt)
+-- 4. Noclip (Đi xuyên tường)
 local NoclipBtn = Instance.new("TextButton", ContentFrame)
 NoclipBtn.BackgroundColor3 = Color3.fromRGB(50, 30, 30)
 NoclipBtn.Size = UDim2.new(1, 0, 0, 26)
@@ -191,7 +201,6 @@ NoclipBtn.MouseButton1Click:Connect(function()
     NoclipBtn.TextColor3 = noclipEnabled and Color3.fromRGB(100, 255, 100) or Color3.fromRGB(255, 100, 100)
     NoclipBtn.Text = noclipEnabled and "Noclip (Xuyên tường): BẬT" or "Noclip (Xuyên tường): TẮT"
     
-    -- Nếu vừa bấm Tắt thì bật lại va chạm ngay lập tức cho nhân vật
     if not noclipEnabled and LocalPlayer.Character then
         for _,p in pairs(LocalPlayer.Character:GetDescendants()) do 
             if p:IsA("BasePart") then p.CanCollide = true end 
