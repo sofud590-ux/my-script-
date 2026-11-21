@@ -2,11 +2,19 @@
 local plr = game.Players.LocalPlayer
 local RS = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
+
+-- Ảnh nền tải từ GitHub
+local IMAGE_URL = "https://raw.githubusercontent.com/sofud590-ux/my-script-/main/anime.jpeg"
+
 local CAPRI_IMAGE
-if isfile and getcustomasset and isfile("anime.jpg") then
-	local ok, asset = pcall(getcustomasset, "anime.jpg")
+if writefile and getcustomasset then
+	local ok, asset = pcall(function()
+		writefile("mtgano_anime.jpg", game:HttpGet(IMAGE_URL))
+		return getcustomasset("mtgano_anime.jpg")
+	end)
 	if ok then CAPRI_IMAGE = asset end
 end
+
 -- Bảng màu Cyberpunk Capri
 local C_BG        = Color3.fromRGB(10, 10, 15)
 local C_PANEL     = Color3.fromRGB(20, 18, 26)
@@ -82,7 +90,7 @@ local function makeDraggable(frame, dragHandle)
 	end)
 end
 
--- Hàm tạo nút hình lục giác đều (6 cạnh) xoay nhẹ nhàng + chữ MTGANO đứng yên dễ đọc
+-- Nút lục giác xoay nhẹ + chữ MTGANO đứng yên
 local spinningHexShapes = {}
 local function createHexButton(parent, name, text, sizePx, pos, spinSpeed)
 	local holder = Instance.new("Frame")
@@ -93,7 +101,6 @@ local function createHexButton(parent, name, text, sizePx, pos, spinSpeed)
 	holder.Active = true
 	holder.Parent = parent
 
-	-- Khối chứa hình lục giác sẽ xoay nhẹ nhàng
 	local hexSpinContainer = Instance.new("Frame")
 	hexSpinContainer.Name = "HexSpinContainer"
 	hexSpinContainer.Size = UDim2.new(1, 0, 1, 0)
@@ -125,7 +132,6 @@ local function createHexButton(parent, name, text, sizePx, pos, spinSpeed)
 		return group
 	end
 
-	-- Viền lục giác ngoài chạy gradient Cyberpunk
 	local borderHex = buildHexShape(hexSpinContainer, Color3.new(1, 1, 1), 1, 1)
 	local baseGrad = Instance.new("UIGradient")
 	baseGrad.Color = ColorSequence.new({
@@ -140,10 +146,8 @@ local function createHexButton(parent, name, text, sizePx, pos, spinSpeed)
 		table.insert(cyberGradients, { grad = g, reverse = false })
 	end
 
-	-- Lõi lục giác bên trong
 	buildHexShape(hexSpinContainer, C_BG, 0.9, 2)
 
-	-- Nút bấm phủ lên lục giác (chữ đứng thẳng dễ nhìn)
 	local btn = Instance.new("TextButton")
 	btn.Size = UDim2.new(1, 0, 1, 0)
 	btn.BackgroundTransparency = 1
@@ -157,13 +161,13 @@ local function createHexButton(parent, name, text, sizePx, pos, spinSpeed)
 
 	table.insert(spinningHexShapes, {
 		obj = hexSpinContainer,
-		speed = spinSpeed or 28 -- Tốc độ xoay chậm, nhẹ nhàng (độ/giây)
+		speed = spinSpeed or 28
 	})
 
 	return holder, btn
 end
 
--- Xoay viền Cyberpunk + xoay nhẹ nhàng hình lục giác
+-- Xoay viền Cyberpunk + xoay lục giác
 RS.RenderStepped:Connect(function(dt)
 	for _, item in ipairs(cyberGradients) do
 		if item.grad and item.grad.Parent then
@@ -192,7 +196,7 @@ gui.ResetOnSpawn = false
 gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 gui.Parent = game.CoreGui
 
--- Khung chính gọn chuẩn: cắt phần trống thừa phía trên, chứa vừa đủ 5 dòng bên dưới
+-- Khung chính
 local main = Instance.new("Frame", gui)
 main.Name = "MainHub"
 main.Size = UDim2.new(0, 264, 0, 244)
@@ -201,10 +205,24 @@ main.BackgroundColor3 = C_BG
 main.BackgroundTransparency = 0.08
 main.BorderSizePixel = 0
 main.Active = true
+main.ClipsDescendants = true
 Instance.new("UICorner", main).CornerRadius = UDim.new(0, 12)
 applyCyberBorder(main, 2, 0, false)
 
--- Header sát mép trên (từ Y = 5 đến Y = 35)
+-- Ảnh anime làm nền khung chính
+if CAPRI_IMAGE then
+	local bg = Instance.new("ImageLabel", main)
+	bg.Name = "AnimeBackground"
+	bg.Size = UDim2.new(1, 0, 1, 0)
+	bg.BackgroundTransparency = 1
+	bg.Image = CAPRI_IMAGE
+	bg.ImageTransparency = 0.45 -- 0 = rõ nhất, 1 = ẩn
+	bg.ScaleType = Enum.ScaleType.Crop
+	bg.ZIndex = 0
+	Instance.new("UICorner", bg).CornerRadius = UDim.new(0, 12)
+end
+
+-- Header
 local header = Instance.new("Frame", main)
 header.Name = "Header"
 header.Size = UDim2.new(1, -16, 0, 30)
@@ -233,7 +251,7 @@ subTag.TextXAlignment = Enum.TextXAlignment.Left
 subTag.Font = Enum.Font.Code
 subTag.TextSize = 10
 
--- Nút thu nhỏ "-" trên header
+-- Nút thu nhỏ
 local hide = Instance.new("TextButton", header)
 hide.Size = UDim2.new(0, 24, 0, 24)
 hide.Position = UDim2.new(1, -24, 0, 3)
@@ -246,7 +264,7 @@ hide.BorderSizePixel = 0
 Instance.new("UICorner", hide).CornerRadius = UDim.new(0, 7)
 applyCyberBorder(hide, 1.5, 0.1, true)
 
--- Đường kẻ phân cách sát ngay dưới header (Y = 38)
+-- Đường kẻ phân cách
 local divider = Instance.new("Frame", main)
 divider.Size = UDim2.new(0.92, 0, 0, 2)
 divider.Position = UDim2.new(0.04, 0, 0, 38)
@@ -259,7 +277,7 @@ divGrad.Color = ColorSequence.new({
 	ColorSequenceKeypoint.new(1, C_PINK),
 })
 
--- Nút LỤC GIÁC MTGANO xoay liên tục nhẹ nhàng (28 độ/giây)
+-- Nút lục giác khôi phục
 local restoreHolder, restore = createHexButton(gui, "RestoreHexBtn", "MTGANO", 58, UDim2.new(0.62, 0, 0.45, 0), 28)
 restoreHolder.Visible = false
 makeDraggable(restoreHolder, restore)
@@ -274,7 +292,7 @@ restore.MouseButton1Click:Connect(function()
 	restoreHolder.Visible = false
 end)
 
--- Khu vực nút tính toán chính xác: từ Y = 45 đến Y = 237 (cao 192px cho 5 dòng x 33px + 4 khe x 5px = 185px)
+-- Khu vực nút
 local body = Instance.new("Frame", main)
 body.Name = "Body"
 body.Size = UDim2.new(1, 0, 0, 192)
@@ -346,7 +364,7 @@ local noclip = toggle("Noclip", C_PINK)
 local aimlock = toggle("ClickLock (Turn Only)", C_PINK)
 local espToggle = toggle("ESP HP", C_GREEN)
 
--- Speed không mất
+-- Speed
 RS.RenderStepped:Connect(function()
 	local char = plr.Character
 	local spd = tonumber(speedBox.Text)
@@ -379,7 +397,7 @@ RS.Stepped:Connect(function()
 	end
 end)
 
--- AimLock (xoay hướng mục tiêu gần nhất, không ép di chuyển)
+-- AimLock
 local function getNearest()
 	local closest, dist = nil, math.huge
 	if not plr.Character or not plr.Character:FindFirstChild("HumanoidRootPart") then return end
@@ -407,7 +425,7 @@ RS.RenderStepped:Connect(function()
 	end
 end)
 
--- Hàm tính màu theo % HP: 70-100% Xanh, 30-70% Vàng, 0-30% Đỏ
+-- Màu theo % HP
 local function getHpColor(hpPercent)
 	if hpPercent <= 30 then
 		return HP_RED
@@ -418,11 +436,11 @@ local function getHpColor(hpPercent)
 	end
 end
 
--- ESP Highlight Thân + Tên nhỏ khi lại gần (đổi màu theo HP)
+-- ESP
 local espFolder = Instance.new("Folder", gui)
 espFolder.Name = "CapriESP"
 
-local NAME_SHOW_DIST = 80 -- Tầm gần hiện tên (studs)
+local NAME_SHOW_DIST = 80
 
 RS.RenderStepped:Connect(function()
 	local myHRP = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
@@ -439,7 +457,6 @@ RS.RenderStepped:Connect(function()
 			local hpColor = getHpColor(hpPercent)
 			local dist = (myHRP.Position - pHRP.Position).Magnitude
 
-			-- 1. Highlight nhân vật đổi màu theo HP
 			local hl = char:FindFirstChild("MTGANO_Highlight")
 			if not hl then
 				hl = Instance.new("Highlight")
@@ -452,7 +469,6 @@ RS.RenderStepped:Connect(function()
 			hl.FillColor = hpColor
 			hl.OutlineColor = hpColor
 
-			-- 2. Tên nhỏ trên đầu (chỉ hiện rõ khi lại gần <= 80 studs)
 			local bill = espFolder:FindFirstChild(p.Name)
 			if not bill then
 				bill = Instance.new("BillboardGui", espFolder)
