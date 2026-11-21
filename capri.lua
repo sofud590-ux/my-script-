@@ -3,17 +3,18 @@ local plr = game.Players.LocalPlayer
 local RS = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
 
--- Ảnh nền tải từ GitHub
-local IMAGE_URL = "https://raw.githubusercontent.com/sofud590-ux/my-script-/main/anime.jpeg"
+-- ================== ẢNH NỀN TỪ GITHUB ==================
+local IMAGE_URL = "https://raw.githubusercontent.com/sofud590-ux/my-script-/main/images%20(1).jpeg"
 
 local CAPRI_IMAGE
 if writefile and getcustomasset then
 	local ok, asset = pcall(function()
-		writefile("mtgano_anime.jpg", game:HttpGet(IMAGE_URL))
-		return getcustomasset("mtgano_anime.jpg")
+		writefile("mtgano_capri.jpg", game:HttpGet(IMAGE_URL))
+		return getcustomasset("mtgano_capri.jpg")
 	end)
 	if ok then CAPRI_IMAGE = asset end
 end
+-- =======================================================
 
 -- Bảng màu Cyberpunk Capri
 local C_BG        = Color3.fromRGB(10, 10, 15)
@@ -23,10 +24,13 @@ local C_GREEN     = Color3.fromRGB(20, 255, 125)
 local C_WHITE     = Color3.fromRGB(248, 248, 252)
 local C_MUTED     = Color3.fromRGB(165, 160, 180)
 
+-- Độ trong suốt của các nút: 0 = đặc, 1 = trong suốt hoàn toàn
+local BTN_ALPHA   = 0.7
+
 -- Màu ESP theo % HP
-local HP_GREEN    = Color3.fromRGB(20, 255, 120) -- 70% - 100%
-local HP_YELLOW   = Color3.fromRGB(255, 225, 30) -- 30% - 70%
-local HP_RED      = Color3.fromRGB(255, 45, 70)  -- 0% - 30%
+local HP_GREEN    = Color3.fromRGB(20, 255, 120)
+local HP_YELLOW   = Color3.fromRGB(255, 225, 30)
+local HP_RED      = Color3.fromRGB(255, 45, 70)
 
 -- Danh sách UIGradient viền Cyberpunk để xoay đồng bộ
 local cyberGradients = {}
@@ -209,14 +213,14 @@ main.ClipsDescendants = true
 Instance.new("UICorner", main).CornerRadius = UDim.new(0, 12)
 applyCyberBorder(main, 2, 0, false)
 
--- Ảnh anime làm nền khung chính
+-- Ảnh CAPRI làm nền
 if CAPRI_IMAGE then
 	local bg = Instance.new("ImageLabel", main)
-	bg.Name = "AnimeBackground"
+	bg.Name = "CapriBackground"
 	bg.Size = UDim2.new(1, 0, 1, 0)
 	bg.BackgroundTransparency = 1
 	bg.Image = CAPRI_IMAGE
-	bg.ImageTransparency = 0.45 -- 0 = rõ nhất, 1 = ẩn
+	bg.ImageTransparency = 0.35 -- 0 = rõ nhất, 1 = ẩn
 	bg.ScaleType = Enum.ScaleType.Crop
 	bg.ZIndex = 0
 	Instance.new("UICorner", bg).CornerRadius = UDim.new(0, 12)
@@ -257,6 +261,7 @@ hide.Size = UDim2.new(0, 24, 0, 24)
 hide.Position = UDim2.new(1, -24, 0, 3)
 hide.Text = "-"
 hide.BackgroundColor3 = C_PANEL
+hide.BackgroundTransparency = BTN_ALPHA
 hide.TextColor3 = C_PINK
 hide.Font = Enum.Font.GothamBlack
 hide.TextSize = 16
@@ -309,9 +314,11 @@ local speedBox = Instance.new("TextBox", body)
 speedBox.LayoutOrder = 1
 speedBox.Size = UDim2.new(0.92, 0, 0, 33)
 speedBox.PlaceholderText = "SPEED // NHẬP SỐ (VD: 35)"
-speedBox.PlaceholderColor3 = C_MUTED
+speedBox.PlaceholderColor3 = C_WHITE
 speedBox.Text = ""
 speedBox.BackgroundColor3 = C_PANEL
+speedBox.BackgroundTransparency = BTN_ALPHA
+speedBox.TextStrokeTransparency = 0.4
 speedBox.TextColor3 = C_GREEN
 speedBox.Font = Enum.Font.GothamBold
 speedBox.TextSize = 12
@@ -330,6 +337,8 @@ local function toggle(name, accentColor)
 	b.Size = UDim2.new(0.92, 0, 0, 33)
 	b.Text = name .. " : OFF"
 	b.BackgroundColor3 = C_PANEL
+	b.BackgroundTransparency = BTN_ALPHA
+	b.TextStrokeTransparency = 0.4
 	b.TextColor3 = C_WHITE
 	b.Font = Enum.Font.GothamBold
 	b.TextSize = 12
