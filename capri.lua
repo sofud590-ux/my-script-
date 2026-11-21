@@ -2,7 +2,11 @@
 local plr = game.Players.LocalPlayer
 local RS = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
-
+local CAPRI_IMAGE
+if isfile and getcustomasset and isfile("anime.jpg") then
+	local ok, asset = pcall(getcustomasset, "anime.jpg")
+	if ok then CAPRI_IMAGE = asset end
+end
 -- Bảng màu Cyberpunk Capri
 local C_BG        = Color3.fromRGB(10, 10, 15)
 local C_PANEL     = Color3.fromRGB(20, 18, 26)
